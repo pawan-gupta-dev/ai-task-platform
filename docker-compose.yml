@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # MongoDB - Database
+  mongodb:
+    image: mongo:6.0-alpine
+    container_name: ai-task-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: ai-task-platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ai-task-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Message Queue
+  redis:
+    image: redis:7-alpine
+    container_name: ai-task-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-task-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend - Express API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-task-backend
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/ai-task-platform
+      JWT_SECRET: your_super_secret_jwt_key_change_this_in_production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 5000
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ai-task-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Worker - Job Processor
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: ai-task-worker
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/ai-task-platform
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_CONCURRENCY: 5
+      NODE_ENV: production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ai-task-network
+
+  # Frontend - React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-task-frontend
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ai-task-network
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  ai-task-network:
+    driver: bridge

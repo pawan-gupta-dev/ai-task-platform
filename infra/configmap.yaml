@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ai-task-platform
+data:
+  NODE_ENV: "production"
+  WORKER_CONCURRENCY: "5"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  MONGO_HOST: "mongo"
+  MONGO_PORT: "27017"
+  MONGO_DATABASE: "ai-task-platform"
+  FRONTEND_URL: "https://ai-task-platform.example.com"
+  BACKEND_URL: "https://api.ai-task-platform.example.com"

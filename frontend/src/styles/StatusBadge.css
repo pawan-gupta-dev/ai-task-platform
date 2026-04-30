@@ -1,0 +1,41 @@
+/* Status Badge */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-running {
+  background: #cfe2ff;
+  color: #084298;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-success {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-failed {
+  background: #f8d7da;
+  color: #842029;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
