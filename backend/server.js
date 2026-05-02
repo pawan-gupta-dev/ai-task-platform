@@ -14,6 +14,13 @@ const app = express();
 // Helmet: Sets various HTTP headers for security
 app.use(helmet());
 
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://your-frontend.onrender.com' 
+  ],
+  credentials: true
+}))
 // Rate limiting: Protect auth routes from brute force attacks
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -73,3 +80,5 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+
