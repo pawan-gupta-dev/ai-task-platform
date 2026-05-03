@@ -13,14 +13,6 @@ const app = express();
 // SECURITY MIDDLEWARE
 // Helmet: Sets various HTTP headers for security
 app.use(helmet());
-  
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://ai-task-platform-1-jzvb.onrender.com"
-  ],
-  credentials: true
-}));
 
 // Rate limiting: Protect auth routes from brute force attacks
 const authLimiter = rateLimit({
@@ -36,12 +28,21 @@ const apiLimiter = rateLimit({
 });
 
 // CORS: Allow frontend to access backend
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ai-task-platform-1-jzvb.onrender.com"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
+}));
 
 // Body parser middleware
 app.use(express.json());
