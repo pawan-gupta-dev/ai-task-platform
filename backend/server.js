@@ -15,10 +15,7 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://your-frontend.onrender.com' 
-  ],
+  origin:'https://ai-task-platform-1-jzvb.onrender.com',
   credentials: true
 }))
 // Rate limiting: Protect auth routes from brute force attacks
